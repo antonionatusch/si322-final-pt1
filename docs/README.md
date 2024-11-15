@@ -50,6 +50,20 @@ Además, se hará uso del idioma inglés para todas las nomenclaturas de variabl
 
 Al ser un proyecto multirepo, para poder ejecutar cada ejercicio se hará uso de <code>cargo run</code> para ejecutar cada ejercicio según corresponda.
 
+### Commits Convencionales
+
+Para mantener la consistencia y claridad en el historial de commits, se utilizarán commits convencionales siguiendo el estándar de **Commitizen**, basado en los commits de Angular. Para especificar el alcance (`scope`), como el ejercicio o módulo afectado, se incluye entre paréntesis después del tipo de commit. 
+
+Ejemplos de commits convencionales con `scope`:
+
+- `feat(ejercicio1): add agent struct for exercise 1`
+- `fix(ejercicio2): correct semaphore handling`
+- `docs(ejercicio3): update README with usage examples for module`
+- `style(ejercicio1): format agent module to match project style guidelines`
+- `refactor(bicycle_semaphore): optimize acquire method`
+- `test(mounter): add tests for assemble_bicycle method`
+- `chore(global): update dependencies`
+
 ## Herramientas
 Se recomienda el uso de [RustRover](https://www.jetbrains.com/rust/) como IDE principal para el desarrollo del proyecto, con la opción de utilizar Visual Studio Code. Este proyecto se desarrolla en Rust, que incluye un manejo eficiente de concurrencia y semáforos en el paquete `std`.
 

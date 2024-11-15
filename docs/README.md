@@ -211,6 +211,14 @@ cargo doc --open
 
 Este comando compilará la documentación basada en los comentarios de cada módulo y abrirá un navegador para visualizarla. Asegúrate de que todos los comentarios de tus funciones, estructuras y módulos sigan el formato adecuado, ya que esta documentación será la referencia oficial del proyecto.
 
+## Problemas a realizar
+Se encuentran en el directorio `docs` del directorio raíz.
+Se asignaron por sorteo de la siguiente forma: </br>
+Mauricio: 3 y 2 </br>
+Antonio: 1 y 6 </br>
+Werner: 5 y 7 </br>
+Dylan: 4
+
 ## Contacto
 Cualquier duda, sugerencia o recomendación deberá hacerse contactando de manera presencial o por correo a los co-dueños:
 

@@ -16,14 +16,7 @@ const BUFFER_SIZE: usize = 100;
 /// Opción del menú que ejecuta el planteamiento inicial del problema productor-consumidor.
 ///
 /// # Nota
-/// Esta implementación tiene problemas que pueden surgir debido a un mal manejo de la concurrencia:
-/// - **Falta de manejo explícito de exclusión mutua**: Aunque el `Mutex` protege el buffer, no hay control explícito sobre
-///   la exclusión mutua entre el productor y el consumidor.
-/// - **Riesgo de condiciones límite**:
-///   - El productor podría intentar producir cuando el buffer está lleno.
-///   - El consumidor podría intentar consumir cuando el buffer está vacío.
-/// - **Falta de validación de estado**: No hay forma de monitorear correctamente el estado del buffer y sincronizar
-///   estrictamente al productor y al consumidor.
+/// Esta implementación utiliza un diseño correcto basado en semáforos y exclusión mutua.
 pub async fn problema_1_planteamiento_inicial() {
     // Inicializar los componentes principales
     let (buffer, empty_slots, full_slots) = initialize_shared_resources();
@@ -33,18 +26,6 @@ pub async fn problema_1_planteamiento_inicial() {
 
     // Ejecutar el sistema de productor-consumidor
     execute_producer_consumer(producer, consumer).await;
-}
-
-/// Opción futura para ejecutar el planteamiento correcto del problema productor-consumidor.
-///
-/// # Nota
-/// Esta función está pendiente de implementación.
-/// - Se deberá corregir el mal manejo de concurrencia.
-/// - Implementar validaciones estrictas para garantizar exclusión mutua y sincronización correcta.
-pub async fn problema_1_planteamiento_correcto() {
-    println!(
-        "El planteamiento correcto del problema productor-consumidor aún no está implementado."
-    );
 }
 
 /// Inicializa el buffer compartido y los semáforos para sincronización.

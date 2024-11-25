@@ -53,16 +53,14 @@ impl SequenceSync {
     /// Ejecuta las tareas según el caso (b).
     pub async fn case_b(&self) {
         loop {
+            // Ejecución de A
             let _ = self.semaphore_a.acquire().await;
             println!("A ejecutado");
             self.semaphore_c.add_permits(1); // Desbloquea C
 
+            // Ejecución de C -> D -> E
             let _ = self.semaphore_c.acquire().await;
             println!("C ejecutado");
-            self.semaphore_b.add_permits(1); // Desbloquea B
-
-            let _ = self.semaphore_b.acquire().await;
-            println!("B ejecutado");
             self.semaphore_d.add_permits(1); // Desbloquea D
 
             let _ = self.semaphore_d.acquire().await;
@@ -71,7 +69,25 @@ impl SequenceSync {
 
             let _ = self.semaphore_e.acquire().await;
             println!("E ejecutado");
-            self.semaphore_a.add_permits(1); // Reinicia el ciclo
+            self.semaphore_b.add_permits(1); // Desbloquea B
+
+            // Ejecución de B
+            let _ = self.semaphore_b.acquire().await;
+            println!("B ejecutado");
+            self.semaphore_c.add_permits(1); // Desbloquea C
+
+            // Ejecución de C -> D -> E nuevamente
+            let _ = self.semaphore_c.acquire().await;
+            println!("C ejecutado");
+            self.semaphore_d.add_permits(1); // Desbloquea D
+
+            let _ = self.semaphore_d.acquire().await;
+            println!("D ejecutado");
+            self.semaphore_e.add_permits(1); // Desbloquea E
+
+            let _ = self.semaphore_e.acquire().await;
+            println!("E ejecutado");
+            self.semaphore_a.add_permits(1); // Desbloquea A para reiniciar el ciclo
         }
     }
 

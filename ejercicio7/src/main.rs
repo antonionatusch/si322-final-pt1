@@ -22,8 +22,6 @@ async fn main() {
             .read_line(&mut answer)
             .expect("Fallo al leer la entrada");
 
-        let answer = answer.trim();
-
         match answer.trim() {
             "1" => menu::problema_17().await,
             "2" => menu::problema_18_a(),

@@ -36,7 +36,7 @@ pub async fn problema_2_sincronizacion_de_secuencias() {
     println!("a) Secuencia ABCDEABCDE...");
     println!("b) Secuencia ACDEBACDEB...");
     println!("c) Secuencia (A o B)CDE...");
-    println!("d) Secuencia (A o B)CE(A o B)DE...");
+    println!("d) Secuencia (A o B)CE(A o B)(A o B)DE(A o B)CE(A o B)(A o B)DE");
 
     let mut case = String::new();
     io::stdin()

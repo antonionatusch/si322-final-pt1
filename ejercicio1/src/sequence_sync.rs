@@ -78,29 +78,47 @@ impl SequenceSync {
     /// Ejecuta las tareas según el caso (c) corregido.
     pub async fn case_c(&self) {
         let mut alternate = true; // Variable para alternar entre A y B
+        let mut step = 0; // Rastrea la etapa actual en la secuencia
+
         loop {
-            if alternate {
-                let _ = self.semaphore_a.acquire().await;
-                println!("A ejecutado");
-            } else {
-                let _ = self.semaphore_b.acquire().await;
-                println!("B ejecutado");
+            match step {
+                0 => {
+                    // Primera ejecución de A o B
+                    if alternate {
+                        let _ = self.semaphore_a.acquire().await;
+                        println!("A ejecutado");
+                    } else {
+                        let _ = self.semaphore_b.acquire().await;
+                        println!("B ejecutado");
+                    }
+                    alternate = !alternate; // Alterna entre A y B
+                    self.semaphore_c.add_permits(1); // Desbloquea C
+                    step = 1;
+                }
+                1 => {
+                    // Ejecución de C
+                    let _ = self.semaphore_c.acquire().await;
+                    println!("C ejecutado");
+                    self.semaphore_d.add_permits(1); // Desbloquea D
+                    step = 2;
+                }
+                2 => {
+                    // Ejecución de D
+                    let _ = self.semaphore_d.acquire().await;
+                    println!("D ejecutado");
+                    self.semaphore_e.add_permits(1); // Desbloquea E
+                    step = 3;
+                }
+                3 => {
+                    // Ejecución de E
+                    let _ = self.semaphore_e.acquire().await;
+                    println!("E ejecutado");
+                    self.semaphore_a.add_permits(1); // Reinicia el ciclo para A/B
+                    self.semaphore_b.add_permits(1); // Reinicia el ciclo para A/B
+                    step = 0; // Reinicia el ciclo
+                }
+                _ => panic!("Estado inválido"), // Evita estados inesperados
             }
-            alternate = !alternate; // Cambia entre A y B
-            self.semaphore_c.add_permits(1); // Desbloquea C
-
-            let _ = self.semaphore_c.acquire().await;
-            println!("C ejecutado");
-            self.semaphore_d.add_permits(1); // Desbloquea D
-
-            let _ = self.semaphore_d.acquire().await;
-            println!("D ejecutado");
-            self.semaphore_e.add_permits(1); // Desbloquea E
-
-            let _ = self.semaphore_e.acquire().await;
-            println!("E ejecutado");
-            self.semaphore_a.add_permits(1); // Reinicia el ciclo
-            self.semaphore_b.add_permits(1); // Permite que B se pueda usar de nuevo
         }
     }
 

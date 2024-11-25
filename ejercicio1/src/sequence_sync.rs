@@ -75,11 +75,18 @@ impl SequenceSync {
         }
     }
 
-    /// Ejecuta las tareas según el caso (c).
+    /// Ejecuta las tareas según el caso (c) corregido.
     pub async fn case_c(&self) {
+        let mut alternate = true; // Variable para alternar entre A y B
         loop {
-            let _ = self.semaphore_a.acquire().await;
-            println!("A o B ejecutado");
+            if alternate {
+                let _ = self.semaphore_a.acquire().await;
+                println!("A ejecutado");
+            } else {
+                let _ = self.semaphore_b.acquire().await;
+                println!("B ejecutado");
+            }
+            alternate = !alternate; // Cambia entre A y B
             self.semaphore_c.add_permits(1); // Desbloquea C
 
             let _ = self.semaphore_c.acquire().await;
@@ -93,20 +100,27 @@ impl SequenceSync {
             let _ = self.semaphore_e.acquire().await;
             println!("E ejecutado");
             self.semaphore_a.add_permits(1); // Reinicia el ciclo
+            self.semaphore_b.add_permits(1); // Permite que B se pueda usar de nuevo
         }
     }
 
-    /// Ejecuta las tareas según el caso (d).
+    /// Ejecuta las tareas según el caso (d) corregido.
     pub async fn case_d(&self) {
+        let mut alternate = true; // Variable para alternar entre A y B
         loop {
-            let _ = self.semaphore_a.acquire().await;
-            println!("A o B ejecutado");
+            if alternate {
+                let _ = self.semaphore_a.acquire().await;
+                println!("A ejecutado");
+            } else {
+                let _ = self.semaphore_b.acquire().await;
+                println!("B ejecutado");
+            }
+            alternate = !alternate; // Cambia entre A y B
             self.semaphore_c.add_permits(1); // Desbloquea C
             self.semaphore_e.add_permits(1); // Desbloquea E
 
             let _ = self.semaphore_c.acquire().await;
             println!("C ejecutado");
-            self.semaphore_e.add_permits(1); // Desbloquea E
 
             let _ = self.semaphore_e.acquire().await;
             println!("E ejecutado");
@@ -114,7 +128,8 @@ impl SequenceSync {
 
             let _ = self.semaphore_d.acquire().await;
             println!("D ejecutado");
-            self.semaphore_a.add_permits(1); // Reinicia el ciclo
+            self.semaphore_a.add_permits(1); // Permite que A se pueda usar de nuevo
+            self.semaphore_b.add_permits(1); // Permite que B se pueda usar de nuevo
         }
     }
 }

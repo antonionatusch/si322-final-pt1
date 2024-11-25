@@ -26,24 +26,26 @@ impl Producer {
         }
     }
 
-    /// Comienza a producir mensajes.
+    /// Produce mensajes utilizando el planteamiento original.
     pub async fn produce(&self) {
         loop {
-            // Esperar espacio vacío
-            self.empty_slots.acquire().await;
+            self.empty_slots.acquire().await; // Verificar espacio disponible
+            self.buffer.add("Mensaje producido".to_string()).await;
+            self.full_slots.release(1); // Notificar que hay un mensaje disponible
+            sleep(Duration::from_secs(1)).await; // Simular tiempo de producción
+        }
+    }
 
-            // Producir un mensaje
-            let message = "Mensaje producido".to_string();
-            println!("Produciendo: {}", message);
-
-            // Añadir al buffer
-            self.buffer.add(message);
-
-            // Liberar un espacio lleno
-            self.full_slots.release(1);
-
-            // Simular tiempo de producción
-            sleep(Duration::from_secs(1)).await;
+    /// Produce mensajes utilizando el planteamiento corregido.
+    ///
+    /// # Nota
+    /// Este método corrige el orden de los semáforos para evitar condiciones de carrera.
+    pub async fn produce_corregido(&self) {
+        loop {
+            self.empty_slots.acquire().await; // Verificar espacio disponible
+            self.buffer.add("Mensaje producido".to_string()).await; // Añadir al buffer
+            self.full_slots.release(1); // Notificar que hay un mensaje disponible
+            sleep(Duration::from_secs(1)).await; // Simular tiempo de producción
         }
     }
 }

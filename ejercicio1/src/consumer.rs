@@ -26,22 +26,30 @@ impl Consumer {
         }
     }
 
-    /// Comienza a consumir mensajes.
+    /// Consume mensajes utilizando el planteamiento original.
     pub async fn consume(&self) {
         loop {
-            // Esperar espacio lleno
-            self.full_slots.acquire().await;
-
-            // Consumir un mensaje
-            if let Some(message) = self.buffer.remove() {
-                println!("Consumiendo: {}", message);
+            self.full_slots.acquire().await; // Verificar que hay un mensaje disponible
+            if let Some(message) = self.buffer.remove().await {
+                println!("Mensaje consumido: {}", message);
             }
+            self.empty_slots.release(1); // Notificar que hay un espacio disponible
+            sleep(Duration::from_secs(1)).await; // Simular tiempo de consumo
+        }
+    }
 
-            // Liberar un espacio vacío
-            self.empty_slots.release(1);
-
-            // Simular tiempo de consumo
-            sleep(Duration::from_secs(1)).await;
+    /// Consume mensajes utilizando el planteamiento corregido.
+    ///
+    /// # Nota
+    /// Este método corrige el orden de los semáforos para evitar condiciones de carrera.
+    pub async fn consume_corregido(&self) {
+        loop {
+            self.full_slots.acquire().await; // Verificar que hay un mensaje disponible
+            if let Some(message) = self.buffer.remove().await {
+                println!("Mensaje consumido: {}", message);
+            }
+            self.empty_slots.release(1); // Notificar que hay un espacio disponible
+            sleep(Duration::from_secs(1)).await; // Simular tiempo de consumo
         }
     }
 }

@@ -1,6 +1,7 @@
 //! Implementación del buffer compartido para el problema de productores y consumidores.
 
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
 /// Representa un buffer compartido entre productores y consumidores.
 #[derive(Clone)]
@@ -26,17 +27,17 @@ impl Buffer {
     ///
     /// # Parámetros
     /// - `message`: Mensaje a añadir.
-    pub fn add(&self, message: String) {
-        let mut buf = self.buffer.lock().unwrap();
+    pub async fn add(&self, message: String) {
+        let mut buf = self.buffer.lock().await;
         buf.push(message);
     }
 
     /// Elimina y retorna un mensaje del buffer.
     ///
     /// # Retorno
-    /// El mensaje removido.
-    pub fn remove(&self) -> Option<String> {
-        let mut buf = self.buffer.lock().unwrap();
+    /// El mensaje removido o `None` si el buffer está vacío.
+    pub async fn remove(&self) -> Option<String> {
+        let mut buf = self.buffer.lock().await;
         if buf.is_empty() {
             None
         } else {

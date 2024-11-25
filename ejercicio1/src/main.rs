@@ -3,11 +3,11 @@ mod consumer;
 mod menu;
 mod producer;
 mod semaphore;
+mod sequence_sync;
 
 use menu::{
-    problema_1_planteamiento_corregido,
-    problema_1_planteamiento_inicial,
-    // problema_2_sincronizacion_de_secuencias,
+    problema_1_planteamiento_corregido, problema_1_planteamiento_inicial,
+    problema_2_sincronizacion_de_secuencias,
 };
 use std::io;
 
@@ -39,7 +39,7 @@ async fn main() {
             }
             "3" => {
                 // Ejecutar la opción "Problema 2: Sincronización de Secuencias (Ejercicio 8)"
-                // problema_2_sincronizacion_de_secuencias().await;
+                problema_2_sincronizacion_de_secuencias().await;
             }
             "0" => {
                 // Salir del programa

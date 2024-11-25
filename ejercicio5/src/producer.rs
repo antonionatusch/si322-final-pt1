@@ -28,12 +28,12 @@ impl Producer {
     /// # Retorno
     /// Retorna un `JoinHandle<()>` que representa el hilo en el cual el productor está ejecutándose.
     pub fn run(&self) -> thread::JoinHandle<()> {
-        let buffer = Arc::clone(&self.buffer);
+        let buffer_clone = Arc::clone(&self.buffer);
         thread::spawn(move || {
             for i in 1..=10 {
                 loop {
                     {
-                        let mut buf = buffer.lock().unwrap();
+                        let mut buf = buffer_clone.lock().unwrap();
                         if !buf.is_full() {
                             buf.data.push(i);
                             println!("Produjo: {}", i);

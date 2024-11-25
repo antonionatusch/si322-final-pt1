@@ -29,12 +29,12 @@ impl Consumer {
     /// # Retorno
     /// Retorna un `JoinHandle<()>` que representa el hilo en el cual el consumidor está ejecutándose.
     pub fn run(&self) -> thread::JoinHandle<()> {
-        let buffer = Arc::clone(&self.buffer);
+        let buffer_clone = Arc::clone(&self.buffer);
         thread::spawn(move || {
             for _ in 1..=10 {
                 loop {
                     {
-                        let mut buf = buffer.lock().unwrap();
+                        let mut buf = buffer_clone.lock().unwrap();
                         if !buf.is_empty() {
                             let value: i32 = buf.data.remove(0);
                             println!("Consumió: {}", value);

@@ -35,4 +35,7 @@ impl CustomSemaphore {
     pub fn release(&self, permits: usize) {
         self.semaphore.add_permits(permits);
     }
+    pub fn available_permits(&self) -> usize {
+        self.semaphore.available_permits()
+    }
 }

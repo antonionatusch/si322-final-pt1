@@ -4,7 +4,7 @@ use std::sync::Arc;
 use tokio::sync::Semaphore;
 
 /// Estructura para manejar la sincronización de procesos en el Ejercicio 8.
-#[derive(Clone)]
+// #[derive(Clone)]
 pub struct SequenceSync {
     semaphore_a: Arc<Semaphore>,
     semaphore_b: Arc<Semaphore>,

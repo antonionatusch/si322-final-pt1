@@ -6,6 +6,17 @@ use tokio::sync::Semaphore;
 const MAX_CONNECTIONS: usize = 2;
 const TOTAL_USERS: i32 = 10;
 
+/// Simula el acceso concurrente a una impresora compartida por múltiples usuarios.
+///
+/// Esta función utiliza un semáforo para limitar el acceso simultáneo a un recurso (impresora) 
+/// a un número máximo de usuarios (`MAX_CONNECTIONS`). Los usuarios adicionales deben esperar
+/// a que se liberen permisos antes de poder acceder al recurso.
+///
+/// @Arc::new(Semaphore::new()) Inicializa un semáforo con un número fijo de permisos.
+/// @Arc::clone() Clona la referencia compartida al semáforo para los hilos.
+/// @thread::spawn() Crea múltiples hilos para simular usuarios concurrentes.
+/// @try_acquire() Intenta adquirir un permiso del semáforo sin bloquear indefinidamente.
+/// @thread::sleep() Simula el tiempo necesario para usar el recurso y libera el permiso automáticamente.
 pub fn use_printer() {
     // Crear un semáforo con 2 permisos disponibles
     let semaphore = Arc::new(Semaphore::new(MAX_CONNECTIONS));

@@ -3,7 +3,6 @@ use std::thread;
 use std::time::Duration;
 use tokio::sync::Semaphore;
 
-// Clase para representar un usuario
 // Permite duplicar el valor en lugar de moverlo
 #[derive(Clone)]
 struct User {
@@ -11,14 +10,22 @@ struct User {
     priority: usize,
 }
 
-// Clase para representar la gestión de impresoras
 struct PrinterManager {
     semaphore: Arc<Semaphore>,
     priority_queue: Arc<Mutex<Vec<User>>>,
 }
 
 impl PrinterManager {
-    // Crear un nuevo gestor de impresoras con un número fijo de permisos
+    /// Crea una nueva instancia de `PrinterManager`.
+    ///
+    /// # Parámetros
+    /// - `max_printers`: Número máximo de impresoras disponibles.
+    ///
+    /// # Retorno
+    /// Retorna una instancia de `PrinterManager` con un semáforo inicializado y una cola de prioridad vacía.
+    ///
+    /// @Arc::new(Semaphore::new()) Inicializa el semáforo con el número máximo de permisos.
+    /// @Mutex<Vec<User>> Protege la cola de prioridad para acceso seguro entre hilos.
     fn new(max_printers: usize) -> Self {
         Self {
             semaphore: Arc::new(Semaphore::new(max_printers)),
@@ -26,20 +33,40 @@ impl PrinterManager {
         }
     }
 
-    // Agregar un usuario a la cola de prioridad
+    /// Agrega un usuario a la cola de prioridad.
+    ///
+    /// Este método inserta un usuario en la cola de prioridad y reorganiza la cola
+    /// para que los usuarios con mayor prioridad aparezcan al principio.
+    ///
+    /// # Parámetros
+    /// - `user`: Instancia del usuario a agregar.
+    ///
+    /// @priority_queue.push(user) Inserta al usuario en la cola.
+    /// @priority_queue.sort_by() Ordena la cola en orden descendente de prioridades.
     fn add_user(&self, user: User) {
         let mut queue = self.priority_queue.lock().unwrap();
         queue.push(user);
-        queue.sort_by(|a, b| b.priority.cmp(&a.priority)); // Sort by descending priority
+        queue.sort_by(|a, b| b.priority.cmp(&a.priority));
     }
 
-    // Gestionar el acceso de un usuario a una impresora
+    /// Gestiona el acceso de un usuario a una impresora.
+    ///
+    /// Este método permite que un usuario acceda a una impresora si:
+    /// 1. Tiene una de las dos prioridades más altas en la cola.
+    /// 2. Hay una impresora disponible.
+    ///
+    /// # Parámetros
+    /// - `user`: Instancia del usuario que intenta acceder.
+    ///
+    /// @priority_queue.lock() Protege la cola de prioridad para verificar la posición del usuario.
+    /// @semaphore.try_acquire() Adquiere un permiso del semáforo si hay impresoras disponibles.
+    /// @thread::sleep() Simula el tiempo que el usuario utiliza la impresora.
     fn manage_access(&self, user: User) {
         loop {
             let permission_available = {
                 let queue = self.priority_queue.lock().unwrap();
                 if let Some(pos) = queue.iter().position(|u| u.id == user.id) {
-                    pos < 2 // Allow if within the top two users with the highest priority
+                    pos < 2
                 } else {
                     false
                 }
@@ -52,12 +79,10 @@ impl PrinterManager {
                         user.id, user.priority
                     );
 
-                    // Simulate work
                     thread::sleep(Duration::from_secs(2));
 
                     println!("Usuario {} ha liberado impresora.", user.id);
 
-                    // Remove the user from the queue
                     let mut queue = self.priority_queue.lock().unwrap();
                     if let Some(pos) = queue.iter().position(|u| u.id == user.id) {
                         queue.remove(pos);
@@ -65,32 +90,37 @@ impl PrinterManager {
                     break;
                 }
             } else {
-                thread::sleep(Duration::from_millis(100)); // Wait briefly before trying again
+                thread::sleep(Duration::from_millis(100));
             }
         }
     }
 }
 
-
+/// Simula el acceso de múltiples usuarios a impresoras compartidas con manejo de prioridades.
+///
+/// La función crea usuarios con prioridades asignadas y utiliza múltiples hilos
+/// para simular su acceso a impresoras compartidas. El acceso es gestionado por `PrinterManager`,
+/// que asegura que los usuarios con mayor prioridad tengan acceso preferencial.
+///
+/// @thread::spawn() Crea un hilo por usuario.
+/// @PrinterManager.add_user() Agrega al usuario a la cola de prioridad.
+/// @PrinterManager.manage_access() Gestiona el acceso del usuario a la impresora.
 pub fn use_printer_with_priority() {
     let max_connection = 2;
     let total_user = 10;
-    // Crear el gestor de impresoras con 2 impresoras disponibles
+
     let manager = Arc::new(PrinterManager::new(max_connection));
 
-    // Crear usuarios con diferentes prioridades
     let mut users = Vec::new();
     for id in 1..=total_user {
         users.push(User {
             id,
-            priority: 10 - id + 1, // Decreasing priorities
+            priority: 10 - id + 1,
         });
     }
     
-
     let mut handles = vec![];
 
-    // Crear hilos para cada usuario
     for user in users {
         let manager_clone = Arc::clone(&manager);
         handles.push(thread::spawn(move || {
@@ -99,7 +129,6 @@ pub fn use_printer_with_priority() {
         }));
     }
 
-    // Esperar a que todos los hilos terminen
     for handle in handles {
         handle.join().unwrap();
     }

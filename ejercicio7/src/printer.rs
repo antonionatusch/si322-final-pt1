@@ -3,15 +3,18 @@ use std::thread;
 use std::time::Duration;
 use tokio::sync::Semaphore;
 
+const MAX_CONNECTIONS: usize = 2;
+const TOTAL_USERS: i32 = 10;
+
 pub fn use_printer() {
     // Crear un semáforo con 2 permisos disponibles
-    let semaphore = Arc::new(Semaphore::new(2));
+    let semaphore = Arc::new(Semaphore::new(MAX_CONNECTIONS));
 
     // Crear un vector para manejar los hilos
     let mut handles = vec![];
 
     // Crear 10 hilos
-    for i in 1..=10 {
+    for i in 1..=TOTAL_USERS {
         let sem_clone = Arc::clone(&semaphore);
         let handle = thread::spawn(move || {
             loop {

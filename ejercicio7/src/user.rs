@@ -73,12 +73,14 @@ impl PrinterManager {
 
 
 pub fn use_printer_with_priority() {
+    let max_connection = 2;
+    let total_user = 10;
     // Crear el gestor de impresoras con 2 impresoras disponibles
-    let manager = Arc::new(PrinterManager::new(2));
+    let manager = Arc::new(PrinterManager::new(max_connection));
 
     // Crear usuarios con diferentes prioridades
     let mut users = Vec::new();
-    for id in 1..=5 {
+    for id in 1..=total_user {
         users.push(User {
             id,
             priority: 10 - id + 1, // Decreasing priorities

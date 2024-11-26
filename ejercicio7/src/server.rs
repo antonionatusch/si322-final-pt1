@@ -3,14 +3,16 @@ use tokio::sync::Semaphore;
 use tokio::time::{sleep, Duration};
 use tokio::task;
 
+const  MAX_CONNECTION: usize = 3;
+const TOTAL_USERS: usize = 10;
+
 pub async fn start_connection() {
     // Número máximo de conexiones permitidas
-    let max_connections = 3;
-    let semaphore = Arc::new(Semaphore::new(max_connections));
+    let semaphore = Arc::new(Semaphore::new(MAX_CONNECTION));
     
     // Simulamos múltiples clientes tratando de conectarse al servidor
     let mut tasks = vec![];
-    for i in 1..=10 {
+    for i in 1..=TOTAL_USERS {
         let sem_clone = Arc::clone(&semaphore);
         tasks.push(task::spawn(async move {
             handle_connection(i, sem_clone).await;

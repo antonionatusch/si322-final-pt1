@@ -5,6 +5,7 @@ use crate::buffer::Buffer;
 
 pub struct Producer {
     buffer: Arc<Mutex<Buffer>>,
+    items_to_produce: i32,
 }
 
 impl Producer {
@@ -12,11 +13,12 @@ impl Producer {
     /// 
     /// # Parámetros
     /// - `buffer`: un `Arc<Mutex<Buffer>>` que apunta al buffer compartido.
+    /// - `items_to_produce`: número de elementos que el productor generará.
     /// 
     /// # Retorno
     /// Retorna una nueva instancia de `Producer` asociada al buffer compartido.
-    pub fn new(buffer: Arc<Mutex<Buffer>>) -> Self {
-        Producer { buffer }
+    pub fn new(buffer: Arc<Mutex<Buffer>>, items_to_produce: i32) -> Self {
+        Producer { buffer, items_to_produce }
     }
 
     /// Ejecuta el productor en un hilo separado.
@@ -29,8 +31,9 @@ impl Producer {
     /// Retorna un `JoinHandle<()>` que representa el hilo en el cual el productor está ejecutándose.
     pub fn run(&self) -> thread::JoinHandle<()> {
         let buffer_clone = Arc::clone(&self.buffer);
+        let items = self.items_to_produce;
         thread::spawn(move || {
-            for i in 1..=10 {
+            for i in 1..=items {
                 loop {
                     {
                         let mut buf = buffer_clone.lock().unwrap();

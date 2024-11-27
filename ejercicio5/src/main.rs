@@ -1,30 +1,34 @@
-use std::sync::{Arc, Mutex};
-
 mod buffer;
 mod producer;
 mod consumer;
+mod menu;
+mod monitor;
 
-use crate::buffer::Buffer;
-use crate::producer::Producer;
-use crate::consumer::Consumer;
-
-const BUFFER_SIZE: usize = 5;
-const PRODCUER_SIZE: i32 = 10;
-const CONSUMER_SIZE: i32 = 10;
+use std::io;
 
 fn main() {
-    // Crear el buffer compartido
-    let buffer = Arc::new(Mutex::new(Buffer::new(BUFFER_SIZE)));
+    let mut answer = String::new();
 
-    // Crear el productor y el consumidor
-    let producer = Producer::new(Arc::clone(&buffer), PRODCUER_SIZE);
-    let consumer = Consumer::new(Arc::clone(&buffer), CONSUMER_SIZE);
+    loop {
+        println!("===== Problemas con semáforos en Rust =====");
+        println!("Elija una opción:");
+        println!("1. Problema 14");
+        println!("2. Problema 15");
+        println!("0. Salir");
 
-    // Ejecutar productor y consumidor
-    let producer_handle = producer.run();
-    let consumer_handle = consumer.run();
+        answer.clear();
+        io::stdin()
+            .read_line(&mut answer)
+            .expect("Fallo al leer la entrada");
 
-    // Esperar a que ambos hilos terminen
-    producer_handle.join().unwrap();
-    consumer_handle.join().unwrap();
+        match answer.trim() {
+            "1" => menu::problema_14(),
+            "2" => menu::problema_15(),
+            "0" => {
+                println!("Hasta luego.");
+                break;
+            }
+            _ => println!("Opción no válida, intente de nuevo."),
+        }
+    }
 }

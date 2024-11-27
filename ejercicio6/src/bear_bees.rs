@@ -36,9 +36,12 @@ impl HoneyJar {
 
         // Si el tarro está lleno, el oso consume la miel inmediatamente.
         if *honey >= self.capacity {
-            println!("El tarro está lleno. El oso consume la miel...");
+            println!(
+                "Abeja {} llenó el tarro. Llamando al oso para consumir la miel...",
+                bee_id
+            );
             *honey = 0; // Vacía el tarro.
-            println!("El oso vuelve a dormir. El tarro está vacío.");
+            println!("El oso consume la miel y vuelve a dormir. El tarro está vacío.");
 
             // Permitir que las abejas vuelvan a llenar el tarro.
             self.bees_allowed.add_permits(self.capacity);

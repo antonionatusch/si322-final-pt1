@@ -12,7 +12,6 @@ const BUFFER_SIZE: usize = 5;
 const PRODCUER_SIZE: i32 = 10;
 const CONSUMER_SIZE: i32 = 10;
 
-
 fn main() {
     // Crear el buffer compartido
     let buffer = Arc::new(Mutex::new(Buffer::new(BUFFER_SIZE)));

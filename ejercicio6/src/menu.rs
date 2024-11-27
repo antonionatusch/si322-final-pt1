@@ -1,5 +1,5 @@
-use crate::bear_bees::{bear_task, bee_task, HoneyJar};
-use std::sync::Arc;
+use crate::bear_bees::{bee_task, HoneyJar};
+// use std::sync::Arc;
 use tokio::task;
 
 /// Muestra el menú y permite configurar la simulación.
@@ -27,9 +27,6 @@ pub async fn run_menu() {
 
     let honey_jar = HoneyJar::new(capacity);
 
-    // Inicia la tarea del oso.
-    let bear = task::spawn(bear_task(honey_jar.clone()));
-
     // Inicia las tareas de las abejas.
     let mut bee_tasks = Vec::new();
     for bee_id in 1..=num_bees {
@@ -38,9 +35,7 @@ pub async fn run_menu() {
     }
 
     println!("Simulación en ejecución. Presione Ctrl+C para salir.");
-    use tokio::task;
-
-    let _ = tokio::join!(bear, async {
+    let _ = tokio::join!(async {
         for task in bee_tasks {
             task.await.unwrap();
         }

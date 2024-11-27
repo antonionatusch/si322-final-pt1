@@ -6,7 +6,8 @@ use tokio::time::{sleep, Duration};
 pub struct HoneyJar {
     capacity: usize,
     current: Mutex<usize>,
-    bear_ready: Semaphore,
+    bees_allowed: Semaphore, // Controla si las abejas pueden producir.
+    bear_active: Semaphore,  // Controla si el oso está activo (pausa la producción de abejas).
 }
 
 impl HoneyJar {
@@ -14,12 +15,18 @@ impl HoneyJar {
         Arc::new(Self {
             capacity,
             current: Mutex::new(0),
-            bear_ready: Semaphore::new(0), // Inicialmente el oso duerme.
+            bees_allowed: Semaphore::new(capacity), // Limita a las abejas para evitar sobrellenar el tarro.
+            bear_active: Semaphore::new(1), // Las abejas trabajan mientras el oso no está activo.
         })
     }
 
-    /// Incrementa la cantidad de miel en el tarro.
-    pub async fn add_honey(&self, bee_id: usize) -> bool {
+    /// Incrementa la cantidad de miel en el tarro y llama al oso si está lleno.
+    pub async fn add_honey(&self, bee_id: usize) {
+        // Esperar a que el oso no esté activo.
+        let _bear_inactive = self.bear_active.acquire().await.unwrap();
+        // Esperar a que haya espacio en el tarro.
+        let _permit = self.bees_allowed.acquire().await.unwrap();
+
         let mut honey = self.current.lock().await;
         *honey += 1;
         println!(
@@ -27,37 +34,24 @@ impl HoneyJar {
             bee_id, *honey, self.capacity
         );
 
+        // Si el tarro está lleno, el oso consume la miel inmediatamente.
         if *honey >= self.capacity {
-            println!("El tarro está lleno. Llamando al oso...");
-            self.bear_ready.add_permits(1); // Despierta al oso.
-            return true;
-        }
-        false
-    }
+            println!("El tarro está lleno. El oso consume la miel...");
+            *honey = 0; // Vacía el tarro.
+            println!("El oso vuelve a dormir. El tarro está vacío.");
 
-    /// Consume toda la miel del tarro.
-    pub async fn consume_all(&self) {
-        self.bear_ready.acquire().await; // Espera hasta que el tarro esté lleno.
-        let mut honey = self.current.lock().await;
-        println!("El oso se despierta y consume toda la miel.");
-        *honey = 0; // El tarro queda vacío.
-        println!("El oso vuelve a dormir. El tarro está vacío.");
+            // Permitir que las abejas vuelvan a llenar el tarro.
+            self.bees_allowed.add_permits(self.capacity);
+        }
+
+        self.bear_active.add_permits(1); // Permitir que las abejas continúen.
     }
 }
 
 /// Representa una abeja productora.
 pub async fn bee_task(honey_jar: Arc<HoneyJar>, bee_id: usize) {
     loop {
-        if honey_jar.add_honey(bee_id).await {
-            sleep(Duration::from_millis(1000)).await; // Simula tiempo entre llamadas.
-        }
-    }
-}
-
-/// Representa la tarea del oso.
-pub async fn bear_task(honey_jar: Arc<HoneyJar>) {
-    loop {
-        honey_jar.consume_all().await;
-        sleep(Duration::from_secs(1)).await; // Simula el tiempo que el oso duerme.
+        honey_jar.add_honey(bee_id).await;
+        sleep(Duration::from_millis(500)).await; // Simula el tiempo de producción.
     }
 }
